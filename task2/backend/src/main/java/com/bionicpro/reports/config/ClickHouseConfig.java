@@ -25,10 +25,17 @@ public class ClickHouseConfig {
     @Bean
     public DataSource clickHouseDataSource() throws SQLException {
         Properties properties = new Properties();
-        properties.setProperty("user", clickhouseUser);
-        if (clickhousePassword != null && !clickhousePassword.isEmpty()) {
-            properties.setProperty("password", clickhousePassword);
-        }
+        // Всегда передаем user
+        properties.setProperty("user", clickhouseUser != null ? clickhouseUser : "default");
+        // Для ClickHouse с пустым паролем нужно передать пустую строку явно
+        // Если пароль не указан или пустой, передаем пустую строку
+        String password = (clickhousePassword != null && !clickhousePassword.trim().isEmpty()) 
+            ? clickhousePassword 
+            : "";
+        properties.setProperty("password", password);
+        // Увеличиваем timeout для подключения
+        properties.setProperty("socket_timeout", "30000");
+        properties.setProperty("connect_timeout", "10000");
         
         return new ClickHouseDataSource(clickhouseUrl, properties);
     }

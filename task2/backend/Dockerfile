@@ -11,7 +11,10 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Финальный образ
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
+
+# Устанавливаем curl для healthcheck (для Debian-based образа)
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -19,7 +22,7 @@ WORKDIR /app
 COPY --from=build /app/target/reports-api-*.jar app.jar
 
 # Открываем порт
-EXPOSE 8080
+EXPOSE 8000
 
 # Запускаем приложение
 ENTRYPOINT ["java", "-jar", "app.jar"]

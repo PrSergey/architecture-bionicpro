@@ -50,6 +50,12 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
 
+        <!-- Spring Boot Actuator (для healthcheck) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- JWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
