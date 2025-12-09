@@ -32,6 +32,16 @@ docker exec -i bionicpro-clickhouse clickhouse-client < task2/airflow/scripts/cr
 - User: `bionicpro_user`
 - Password: `bionicpro_password`
 
+```bash
+docker exec bionicpro-airflow-webserver airflow connections add 'postgres_default' \
+  --conn-type 'postgres' \
+  --conn-host 'postgres' \
+  --conn-schema 'bionicpro' \
+  --conn-login 'bionicpro_user' \
+  --conn-password 'bionicpro_password' \
+  --conn-port '5432'
+```
+
 ### 3. Активация DAG
 
 В Airflow UI включите DAG `reports_etl_dag`
