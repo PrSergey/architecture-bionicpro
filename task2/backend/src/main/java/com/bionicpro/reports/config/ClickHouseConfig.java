@@ -36,6 +36,8 @@ public class ClickHouseConfig {
         // Увеличиваем timeout для подключения
         properties.setProperty("socket_timeout", "30000");
         properties.setProperty("connect_timeout", "10000");
+        // Отключаем сжатие, так как LZ4 не поддерживается
+        properties.setProperty("compress", "0");
         
         return new ClickHouseDataSource(clickhouseUrl, properties);
     }

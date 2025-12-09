@@ -1,6 +1,8 @@
 package com.bionicpro.reports.service;
 
 import com.bionicpro.reports.dto.ReportResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -8,11 +10,13 @@ import org.springframework.stereotype.Service;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class ReportsService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ReportsService.class);
     private final JdbcTemplate jdbcTemplate;
 
     public ReportsService(JdbcTemplate jdbcTemplate) {
@@ -23,6 +27,7 @@ public class ReportsService {
      * Получить отчёты по пользователю из витрины ClickHouse
      */
     public List<ReportResponse> getReportsByUserId(Long userId, LocalDate startDate, LocalDate endDate) {
+        try {
         StringBuilder sql = new StringBuilder("""
             SELECT 
                 user_id,
@@ -70,11 +75,16 @@ public class ReportsService {
             params.add(endDate);
         }
 
-        return jdbcTemplate.query(
-            sql.toString(),
-            params.toArray(),
-            new ReportRowMapper()
-        );
+            return jdbcTemplate.query(
+                sql.toString(),
+                params.toArray(),
+                new ReportRowMapper()
+            );
+        } catch (Exception e) {
+            logger.error("Ошибка при получении отчётов из ClickHouse для пользователя {}: {}", userId, e.getMessage(), e);
+            // Возвращаем пустой список вместо ошибки, если ClickHouse недоступен
+            return new ArrayList<>();
+        }
     }
 
     /**

@@ -59,11 +59,15 @@ services:
       nofile:
         soft: 262144
         hard: 262144
+    # Ограничения памяти для предотвращения OOM
+    mem_limit: 2g
+    mem_reservation: 1g
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8123/ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     networks:
       - bionicpro-network
 
@@ -115,8 +119,6 @@ services:
       - "8000:8000"
     depends_on:
       clickhouse:
-        condition: service_healthy
-      keycloak:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/actuator/health || exit 1"]

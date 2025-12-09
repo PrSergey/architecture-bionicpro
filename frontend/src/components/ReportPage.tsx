@@ -42,7 +42,7 @@ const ReportPage: React.FC = () => {
       setLoading(true);
       setError(null);
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000';
       const response = await fetch(`${apiUrl}/api/reports`, {
         headers: {
           'Authorization': `Bearer ${keycloak.token}`,
