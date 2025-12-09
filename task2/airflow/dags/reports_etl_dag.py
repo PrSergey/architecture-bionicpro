@@ -238,6 +238,7 @@ def load_to_clickhouse(**context):
     """
     import clickhouse_connect
     import os
+    from datetime import datetime, date
     
     ti = context['ti']
     data_mart_records = ti.xcom_pull(key='data_mart', task_ids='transform_data')
@@ -256,6 +257,29 @@ def load_to_clickhouse(**context):
     clickhouse_password = os.getenv('CLICKHOUSE_PASSWORD', '')
     clickhouse_database = os.getenv('CLICKHOUSE_DATABASE', 'bionicpro_reports')
     
+    # Функция для преобразования строки в date
+    def parse_date(date_value):
+        """Преобразует строку или объект date в объект date"""
+        if isinstance(date_value, date):
+            return date_value
+        if isinstance(date_value, datetime):
+            return date_value.date()
+        if isinstance(date_value, str):
+            try:
+                # Пробуем разные форматы даты
+                for fmt in ['%Y-%m-%d', '%Y/%m/%d', '%d.%m.%Y']:
+                    try:
+                        return datetime.strptime(date_value, fmt).date()
+                    except ValueError:
+                        continue
+                # Если не удалось распарсить, возвращаем дату по умолчанию
+                logging.warning(f"Не удалось распарсить дату: {date_value}, используется дата по умолчанию")
+                return date(1970, 1, 1)
+            except Exception as e:
+                logging.warning(f"Ошибка при парсинге даты {date_value}: {e}")
+                return date(1970, 1, 1)
+        return date(1970, 1, 1)
+    
     try:
         client = clickhouse_connect.get_client(
             host=clickhouse_host,
@@ -269,27 +293,27 @@ def load_to_clickhouse(**context):
         data_to_insert = []
         for record in data_mart_records:
             data_to_insert.append([
-                record['user_id'],
-                record.get('email', ''),
-                record.get('first_name', ''),
-                record.get('last_name', ''),
-                record.get('prosthesis_id', ''),
-                record['report_date'],
-                record['total_actions'],
+                int(record['user_id']),
+                str(record.get('email', '')),
+                str(record.get('first_name', '')),
+                str(record.get('last_name', '')),
+                str(record.get('prosthesis_id', '')),
+                parse_date(record.get('report_date')),
+                int(record.get('total_actions', 0)),
                 float(record['avg_response_time']) if record.get('avg_response_time') else 0.0,
                 float(record['max_response_time']) if record.get('max_response_time') else 0.0,
                 float(record['min_response_time']) if record.get('min_response_time') else 0.0,
-                record['grasp_count'],
-                record['release_count'],
-                record['flex_count'],
+                int(record.get('grasp_count', 0)),
+                int(record.get('release_count', 0)),
+                int(record.get('flex_count', 0)),
                 float(record['avg_battery_level']) if record.get('avg_battery_level') else 0.0,
                 float(record['min_battery_level']) if record.get('min_battery_level') else 0.0,
-                record['total_usage_seconds'],
+                int(record.get('total_usage_seconds', 0)),
                 float(record['usage_hours']) if record.get('usage_hours') else 0.0,
                 float(record['actions_per_hour']) if record.get('actions_per_hour') else 0.0,
                 float(record['efficiency_score']) if record.get('efficiency_score') else 0.0,
-                record.get('order_date', '1970-01-01'),
-                record.get('status', ''),
+                parse_date(record.get('order_date', '1970-01-01')),
+                str(record.get('status', '')),
             ])
         
         # Выполняем вставку данных
