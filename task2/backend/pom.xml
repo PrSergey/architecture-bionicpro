@@ -81,6 +81,13 @@
             <artifactId>clickhouse-jdbc</artifactId>
             <version>0.6.0</version>
         </dependency>
+        
+        <!-- Apache HTTP Client 5 для ClickHouse JDBC -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>5.2.1</version>
+        </dependency>
 
         <!-- Lombok -->
         <dependency>

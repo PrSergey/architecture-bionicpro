@@ -173,7 +173,9 @@ services:
 
   # Airflow Webserver
   airflow-webserver:
-    image: apache/airflow:2.7.0
+    build:
+      context: ./task2/airflow
+      dockerfile: Dockerfile
     container_name: bionicpro-airflow-webserver
     user: "${AIRFLOW_UID:-50000}:0"
     environment:
@@ -224,7 +226,9 @@ services:
 
   # Airflow Scheduler
   airflow-scheduler:
-    image: apache/airflow:2.7.0
+    build:
+      context: ./task2/airflow
+      dockerfile: Dockerfile
     container_name: bionicpro-airflow-scheduler
     user: "${AIRFLOW_UID:-50000}:0"
     environment:
